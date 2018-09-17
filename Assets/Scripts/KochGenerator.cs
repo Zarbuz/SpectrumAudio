@@ -58,12 +58,12 @@ public class KochGenerator : MonoBehaviour
     [Range(8, 24)]
     protected int bezierVertexCount;
 
-    protected Keyframe[] _keys;
-    protected int _initiatorPointAmount;
-    protected int _generationCount;
-    protected Vector3[] _positions;
-    protected Vector3[] _targetPosition;
-    protected Vector3[] _bezierPosition;
+    protected Keyframe[] keys;
+    protected int initiatorPointAmount;
+    protected int generationCount;
+    protected Vector3[] positions;
+    protected Vector3[] targetPosition;
+    protected Vector3[] bezierPosition;
 
     private Vector3[] _initiatorPoints;
     private Vector3 _rotateVector;
@@ -76,21 +76,21 @@ public class KochGenerator : MonoBehaviour
     private void OnDrawGizmos()
     {
         GetInitiatorPoints();
-        _initiatorPoints = new Vector3[_initiatorPointAmount];
+        _initiatorPoints = new Vector3[initiatorPointAmount];
         _rotateVector = Quaternion.AngleAxis(_initialRotation, _rotateAxis) * _rotateVector;
 
-        for (int i = 0; i < _initiatorPointAmount; i++)
+        for (int i = 0; i < initiatorPointAmount; i++)
         {
             _initiatorPoints[i] = _rotateVector * initiatorSize;
-            _rotateVector = Quaternion.AngleAxis(360 / _initiatorPointAmount, _rotateAxis) * _rotateVector;
+            _rotateVector = Quaternion.AngleAxis(360 / initiatorPointAmount, _rotateAxis) * _rotateVector;
         }
 
-        for (int i = 0; i < _initiatorPointAmount; i++)
+        for (int i = 0; i < initiatorPointAmount; i++)
         {
             Gizmos.color = Color.white;
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
             Gizmos.matrix = rotationMatrix;
-            if (i < _initiatorPointAmount - 1)
+            if (i < initiatorPointAmount - 1)
             {
                 Gizmos.DrawLine(_initiatorPoints[i], _initiatorPoints[i + 1]);
             }
@@ -106,25 +106,25 @@ public class KochGenerator : MonoBehaviour
     private void Awake()
     {
         GetInitiatorPoints();
-        _initiatorPoints = new Vector3[_initiatorPointAmount];
+        _initiatorPoints = new Vector3[initiatorPointAmount];
         _rotateVector = Quaternion.AngleAxis(_initialRotation, _rotateAxis) * _rotateVector;
-        _positions = new Vector3[_initiatorPointAmount + 1];
-        _targetPosition = new Vector3[_initiatorPointAmount + 1];
-        _keys = generator.keys;
+        positions = new Vector3[initiatorPointAmount + 1];
+        targetPosition = new Vector3[initiatorPointAmount + 1];
+        keys = generator.keys;
         _lineSegments = new List<LineSegment>();
 
-        for (int i = 0; i < _initiatorPointAmount; i++)
+        for (int i = 0; i < initiatorPointAmount; i++)
         {
-            _positions[i] = _rotateVector * initiatorSize;
-            _rotateVector = Quaternion.AngleAxis(360 / _initiatorPointAmount, _rotateAxis) * _rotateVector;
+            positions[i] = _rotateVector * initiatorSize;
+            _rotateVector = Quaternion.AngleAxis(360 / initiatorPointAmount, _rotateAxis) * _rotateVector;
         }
 
-        _positions[_initiatorPointAmount] = _positions[0];
-        _targetPosition = _positions;
+        positions[initiatorPointAmount] = positions[0];
+        targetPosition = positions;
 
         for (int i = 0; i < startGen.Length; i++)
         {
-            Generate(_targetPosition, startGen[i].Outwards, startGen[i].Scale);
+            Generate(targetPosition, startGen[i].Outwards, startGen[i].Scale);
         }
     }
 
@@ -158,10 +158,10 @@ public class KochGenerator : MonoBehaviour
             newPos.Add(line.StartPosition);
             targetPos.Add(line.StartPosition);
 
-            for (int j = 1; j < _keys.Length - 1; j++)
+            for (int j = 1; j < keys.Length - 1; j++)
             {
-                float moveAmount = line.Length * _keys[j].time;
-                float heightAmount = (line.Length * _keys[j].value) * generatorMultiplier;
+                float moveAmount = line.Length * keys[j].time;
+                float heightAmount = (line.Length * keys[j].value) * generatorMultiplier;
                 Vector3 movePos = line.StartPosition + (line.Direction * moveAmount);
                 Vector3 direction = outwards ? Quaternion.AngleAxis(-90, _rotateAxis) * line.Direction : Quaternion.AngleAxis(90, _rotateAxis) * line.Direction;
                 newPos.Add(movePos);
@@ -172,12 +172,12 @@ public class KochGenerator : MonoBehaviour
         newPos.Add(_lineSegments[0].StartPosition);
         targetPos.Add(_lineSegments[0].StartPosition);
 
-        _positions = new Vector3[newPos.Count];
-        _targetPosition = new Vector3[targetPos.Count];
-        _positions = newPos.ToArray();
-        _targetPosition = targetPos.ToArray();
-        _bezierPosition = BezierCurve(_targetPosition, bezierVertexCount);
-        _generationCount++;
+        this.positions = new Vector3[newPos.Count];
+        targetPosition = new Vector3[targetPos.Count];
+        this.positions = newPos.ToArray();
+        targetPosition = targetPos.ToArray();
+        bezierPosition = BezierCurve(targetPosition, bezierVertexCount);
+        generationCount++;
     }
 
     protected Vector3[] BezierCurve(Vector3[] points, int vertexCount)
@@ -206,27 +206,27 @@ public class KochGenerator : MonoBehaviour
         switch (initiator)
         {
             case Initiator.Triangle:
-                _initiatorPointAmount = 3;
+                initiatorPointAmount = 3;
                 _initialRotation = 0;
                 break;
             case Initiator.Square:
-                _initiatorPointAmount = 4;
+                initiatorPointAmount = 4;
                 _initialRotation = 45;
                 break;
             case Initiator.Pentagon:
-                _initiatorPointAmount = 5;
+                initiatorPointAmount = 5;
                 _initialRotation = 36;
                 break;
             case Initiator.Hexagon:
-                _initiatorPointAmount = 6;
+                initiatorPointAmount = 6;
                 _initialRotation = 30;
                 break;
             case Initiator.Heptagon:
-                _initiatorPointAmount = 7;
+                initiatorPointAmount = 7;
                 _initialRotation = 25.71428f;
                 break;
             case Initiator.Octagon:
-                _initiatorPointAmount = 8;
+                initiatorPointAmount = 8;
                 _initialRotation = 22.5f;
                 break;
         }

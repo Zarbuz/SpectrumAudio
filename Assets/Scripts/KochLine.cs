@@ -28,11 +28,11 @@ public class KochLine : KochGenerator
         _lineRenderer.enabled = true;
         _lineRenderer.useWorldSpace = false;
         _lineRenderer.loop = true;
-        _lineRenderer.positionCount = _positions.Length;
-        _lineRenderer.SetPositions(_positions);
-        _lerpPosition = new Vector3[_positions.Length];
+        _lineRenderer.positionCount = positions.Length;
+        _lineRenderer.SetPositions(positions);
+        _lerpPosition = new Vector3[positions.Length];
 
-        _lerpAudio = new float[_initiatorPointAmount];
+        _lerpAudio = new float[initiatorPointAmount];
 
         _matInstance = new Material(material);
         _lineRenderer.material = _matInstance;
@@ -42,26 +42,26 @@ public class KochLine : KochGenerator
     {
         _matInstance.SetColor("_EmissionColor", color * audioPeer.GetAudioBandBuffer(audioBandMaterial) * emissionMultiplier);
 
-        if (_generationCount != 0)
+        if (generationCount != 0)
         {
             int count = 0;
-            for (int i = 0; i < _initiatorPointAmount; i++)
+            for (int i = 0; i < initiatorPointAmount; i++)
             {
                 _lerpAudio[i] = audioPeer.GetAudioBandBuffer(audioBand[i]);
-                for (int j = 0; j < (_positions.Length - 1) / _initiatorPointAmount; j++)
+                for (int j = 0; j < (positions.Length - 1) / initiatorPointAmount; j++)
                 {
-                    _lerpPosition[count] = Vector3.Lerp(_positions[count], _targetPosition[count], _lerpAudio[i]);
+                    _lerpPosition[count] = Vector3.Lerp(positions[count], targetPosition[count], _lerpAudio[i]);
                     count++;
                 }
             }
-            _lerpPosition[count] = Vector3.Lerp(_positions[count], _targetPosition[count], _lerpAudio[_initiatorPointAmount - 1]);
+            _lerpPosition[count] = Vector3.Lerp(positions[count], targetPosition[count], _lerpAudio[initiatorPointAmount - 1]);
 
 
             if (useBezierCurves)
             {
-                _bezierPosition = BezierCurve(_lerpPosition, bezierVertexCount);
-                _lineRenderer.positionCount = _bezierPosition.Length;
-                _lineRenderer.SetPositions(_bezierPosition);
+                bezierPosition = BezierCurve(_lerpPosition, bezierVertexCount);
+                _lineRenderer.positionCount = bezierPosition.Length;
+                _lineRenderer.SetPositions(bezierPosition);
             }
             else
             {
